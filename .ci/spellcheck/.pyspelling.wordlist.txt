@@ -139,6 +139,7 @@ convolutional
 coreference
 CoSENT
 cpm
+cpp
 CPUs
 cpu
 CRNN
@@ -435,6 +436,7 @@ LangChain
 langchain
 Lasinger
 latents
+LocalAI
 lookahead
 LCMs
 LCMScheduler
@@ -500,6 +502,7 @@ microservices
 MiDaS
 MidasNet
 Midjourney
+minicpm
 MiniCPM
 MiniLM
 mistralai
@@ -610,6 +613,7 @@ OpenVINO
 openvino
 OpenVino
 OpenVINO's
+OpenVINOMultiModal
 openvoice
 OpenVoice
 OpenVoiceBaseClass
@@ -690,6 +694,7 @@ precomputed
 preconverted
 prefetching
 preformatted
+prem
 PrePostProcessing
 prepostprocessing
 prepostprocessor
@@ -992,6 +997,7 @@ VITS
 vitt
 VL
 vl
+VLM
 VLModel
 VM
 Vladlen
@@ -1031,12 +1037,14 @@ xt
 xvector
 xxl
 XYWH
+YAML
 Yiqin
 YOLO
 YOLOv
 yolov
 Youri
 youri
+YouTube
 Zafrir
 ZavyChromaXL
 Zongyuan

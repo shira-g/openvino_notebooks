@@ -96,9 +96,9 @@ def convert_pipeline_models(pipeline):
     convert(VaeDecoder(pipeline.vae), VAE_DECODER_PATH, torch.zeros(1, 4, 128, 96))
     del pipeline.vae
 
-    inpainting_latent_model_input = torch.zeros(2, 9, 256, 96)
+    inpainting_latent_model_input = torch.rand(2, 9, 256, 96)
     timestep = torch.tensor(0)
-    encoder_hidden_states = torch.zeros(2, 1, 768)
+    encoder_hidden_states = torch.Tensor(0)
     example_input = (inpainting_latent_model_input, timestep, encoder_hidden_states)
 
     convert(UNetWrapper(pipeline.unet), UNET_PATH, example_input)
@@ -233,13 +233,12 @@ def get_compiled_automasker(automasker, core, device, densepose_processor_path, 
     return automasker
 
 
-def get_pipeline_selection_option(optimized_pipe=None):
+def get_pipeline_selection_option(is_optimized_pipe_available=False):
     import ipywidgets as widgets
 
-    model_available = optimized_pipe is not None
     use_quantized_models = widgets.Checkbox(
-        value=model_available,
+        value=is_optimized_pipe_available,
         description="Use quantized models",
-        disabled=not model_available,
+        disabled=not is_optimized_pipe_available,
     )
     return use_quantized_models
