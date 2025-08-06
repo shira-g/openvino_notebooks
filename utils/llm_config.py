@@ -73,8 +73,10 @@ def qwen_completion_to_prompt(completion):
 
 SUPPORTED_LLM_MODELS = {
     "English": {
-        "Qwen3-4B": {
-            "model_id": "Qwen/Qwen3-4B",
+        "minicpm4-0.5b": {"model_id": "openbmb/MiniCPM4-0.5B", "remote_code": True, "start_message": DEFAULT_SYSTEM_PROMPT},
+        "minicpm4-8b": {"model_id": "openbmb/MiniCPM4-8B", "remote_code": True, "start_message": DEFAULT_SYSTEM_PROMPT},
+        "Qwen3-0.6B": {
+            "model_id": "Qwen/Qwen3-0.6B",
             "remote_code": False,
             "start_message": DEFAULT_SYSTEM_PROMPT,
             "stop_tokens": ["<|im_end|>", "<|endoftext|>"],
@@ -83,6 +85,14 @@ SUPPORTED_LLM_MODELS = {
         },
         "Qwen3-1.7B": {
             "model_id": "Qwen/Qwen3-1.7B",
+            "remote_code": False,
+            "start_message": DEFAULT_SYSTEM_PROMPT,
+            "stop_tokens": ["<|im_end|>", "<|endoftext|>"],
+            "completion_to_prompt": qwen_completion_to_prompt,
+            "genai_chat_template": "{% for message in messages %}{% if loop.first and messages[0]['role'] != 'system' %}{{ '<|im_start|>system\nYou are a helpful assistant.<|im_end|>\n' }}{% endif %}{{'<|im_start|>' + message['role'] + '\n' + message['content'] + '<|im_end|>' + '\n'}}{% endfor %}{% if add_generation_prompt %}{{ '<|im_start|>assistant\n' }}{% endif %}",
+        },
+        "Qwen3-4B": {
+            "model_id": "Qwen/Qwen3-4B",
             "remote_code": False,
             "start_message": DEFAULT_SYSTEM_PROMPT,
             "stop_tokens": ["<|im_end|>", "<|endoftext|>"],
@@ -126,7 +136,7 @@ SUPPORTED_LLM_MODELS = {
         "tiny-llama-1b-chat": {
             "model_id": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
             "remote_code": False,
-            "start_message": f"<|system|>\n{DEFAULT_SYSTEM_PROMPT}</s>\n",
+            "start_message": DEFAULT_SYSTEM_PROMPT,
             "history_template": "<|user|>\n{user}</s> \n<|assistant|>\n{assistant}</s> \n",
             "current_message_template": "<|user|>\n{user}</s> \n<|assistant|>\n{assistant}",
             "rag_prompt_template": f"""<|system|> {DEFAULT_RAG_PROMPT }</s>"""
@@ -140,24 +150,23 @@ SUPPORTED_LLM_MODELS = {
         "DeepSeek-R1-Distill-Qwen-1.5B": {
             "model_id": "deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B",
             "genai_chat_template": "{% for message in messages %}{% if loop.first %}{{ '<｜begin▁of▁sentence｜>' }}{% endif %}{% if message['role'] == 'system' and message['content'] %}{{ message['content'] }}{% elif message['role'] == 'user' %}{{  '<｜User｜>' +  message['content'] }}{% elif message['role'] == 'assistant' %}{{ '<｜Assistant｜>' +  message['content'] + '<｜end▁of▁sentence｜>' }}{% endif %}{% if loop.last and add_generation_prompt and message['role'] != 'assistant' %}{{ '<｜Assistant｜>' }}{% endif %}{% endfor %}",
-            "system_prompt": DEFAULT_SYSTEM_PROMPT + "Think briefly and provide informative answers, avoidi mixing languages.",
+            "start_message": DEFAULT_SYSTEM_PROMPT + "Think briefly and provide informative answers, avoidi mixing languages.",
         },
         "DeepSeek-R1-Distill-Qwen-7B": {
             "model_id": "deepseek-ai/DeepSeek-R1-Distill-Qwen-7B",
             "genai_chat_template": "{% for message in messages %}{% if loop.first %}{{ '<｜begin▁of▁sentence｜>' }}{% endif %}{% if message['role'] == 'system' and message['content'] %}{{ message['content'] }}{% elif message['role'] == 'user' %}{{  '<｜User｜>' +  message['content'] }}{% elif message['role'] == 'assistant' %}{{ '<｜Assistant｜>' +  message['content'] + '<｜end▁of▁sentence｜>' }}{% endif %}{% if loop.last and add_generation_prompt and message['role'] != 'assistant' %}{{ '<｜Assistant｜>' }}{% endif %}{% endfor %}",
-            "system_prompt": DEFAULT_SYSTEM_PROMPT + "Think briefly and provide informative answers, avoid mixing languages.",
+            "start_message": DEFAULT_SYSTEM_PROMPT + "Think briefly and provide informative answers, avoid mixing languages.",
         },
         "DeepSeek-R1-Distill-Llama-8B": {
             "model_id": "deepseek-ai/DeepSeek-R1-Distill-Llama-8B",
             "genai_chat_template": "{% for message in messages %}{% if loop.first %}{{ '<｜begin▁of▁sentence｜>' }}{% endif %}{% if message['role'] == 'system' and message['content'] %}{{ message['content'] }}{% elif message['role'] == 'user' %}{{  '<｜User｜>' +  message['content'] }}{% elif message['role'] == 'assistant' %}{{ '<｜Assistant｜>' +  message['content'] + '<｜end▁of▁sentence｜>' }}{% endif %}{% if loop.last and add_generation_prompt and message['role'] != 'assistant' %}{{ '<｜Assistant｜>' }}{% endif %}{% endfor %}",
-            "system_prompt": DEFAULT_SYSTEM_PROMPT + "Think briefly and provide informative answers, avoid mixing languages.",
+            "start_message": DEFAULT_SYSTEM_PROMPT + "Think briefly and provide informative answers, avoid mixing languages.",
         },
         "llama-3.2-1b-instruct": {
             "model_id": "meta-llama/Llama-3.2-1B-Instruct",
             "start_message": DEFAULT_SYSTEM_PROMPT,
             "stop_tokens": ["<|eot_id|>"],
             "has_chat_template": True,
-            "start_message": " <|start_header_id|>system<|end_header_id|>\n\n" + DEFAULT_SYSTEM_PROMPT + "<|eot_id|>",
             "history_template": "<|start_header_id|>user<|end_header_id|>\n\n{user}<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n{assistant}<|eot_id|>",
             "current_message_template": "<|start_header_id|>user<|end_header_id|>\n\n{user}<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n{assistant}",
             "rag_prompt_template": f"<|start_header_id|>system<|end_header_id|>\n\n{DEFAULT_RAG_PROMPT}<|eot_id|>"
@@ -177,7 +186,6 @@ SUPPORTED_LLM_MODELS = {
             "start_message": DEFAULT_SYSTEM_PROMPT,
             "stop_tokens": ["<|eot_id|>"],
             "has_chat_template": True,
-            "start_message": " <|start_header_id|>system<|end_header_id|>\n\n" + DEFAULT_SYSTEM_PROMPT + "<|eot_id|>",
             "history_template": "<|start_header_id|>user<|end_header_id|>\n\n{user}<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n{assistant}<|eot_id|>",
             "current_message_template": "<|start_header_id|>user<|end_header_id|>\n\n{user}<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n{assistant}",
             "rag_prompt_template": f"<|start_header_id|>system<|end_header_id|>\n\n{DEFAULT_RAG_PROMPT}<|eot_id|>"
@@ -202,7 +210,7 @@ SUPPORTED_LLM_MODELS = {
         "gemma-2b-it": {
             "model_id": "google/gemma-2b-it",
             "remote_code": False,
-            "start_message": DEFAULT_SYSTEM_PROMPT + ", ",
+            "start_message": DEFAULT_SYSTEM_PROMPT,
             "history_template": "<start_of_turn>user{user}<end_of_turn><start_of_turn>model{assistant}<end_of_turn>",
             "current_message_template": "<start_of_turn>user{user}<end_of_turn><start_of_turn>model{assistant}",
             "rag_prompt_template": f"""{DEFAULT_RAG_PROMPT},"""
@@ -211,7 +219,7 @@ SUPPORTED_LLM_MODELS = {
         "gemma-2-2b-it": {
             "model_id": "google/gemma-2-2b-it",
             "remote_code": False,
-            "start_message": DEFAULT_SYSTEM_PROMPT + ", ",
+            "start_message": DEFAULT_SYSTEM_PROMPT,
             "history_template": "<start_of_turn>user{user}<end_of_turn><start_of_turn>model{assistant}<end_of_turn>",
             "current_message_template": "<start_of_turn>user{user}<end_of_turn><start_of_turn>model{assistant}",
             "rag_prompt_template": f"""{DEFAULT_RAG_PROMPT},"""
@@ -234,7 +242,7 @@ SUPPORTED_LLM_MODELS = {
         "qwen2.5-3b-instruct": {
             "model_id": "Qwen/Qwen2.5-3B-Instruct",
             "remote_code": False,
-            "start_message": DEFAULT_SYSTEM_PROMPT + ", ",
+            "start_message": DEFAULT_SYSTEM_PROMPT,
             "rag_prompt_template": f"""<|im_start|>system
             {DEFAULT_RAG_PROMPT }<|im_end|>"""
             + """
@@ -250,7 +258,7 @@ SUPPORTED_LLM_MODELS = {
         "qwen2.5-7b-instruct": {
             "model_id": "Qwen/Qwen2.5-7B-Instruct",
             "remote_code": False,
-            "start_message": DEFAULT_SYSTEM_PROMPT + ", ",
+            "start_message": DEFAULT_SYSTEM_PROMPT,
             "rag_prompt_template": f"""<|im_start|>system
             {DEFAULT_RAG_PROMPT }<|im_end|>"""
             + """
@@ -265,7 +273,7 @@ SUPPORTED_LLM_MODELS = {
         "gemma-7b-it": {
             "model_id": "google/gemma-7b-it",
             "remote_code": False,
-            "start_message": DEFAULT_SYSTEM_PROMPT + ", ",
+            "start_message": DEFAULT_SYSTEM_PROMPT,
             "history_template": "<start_of_turn>user{user}<end_of_turn><start_of_turn>model{assistant}<end_of_turn>",
             "current_message_template": "<start_of_turn>user{user}<end_of_turn><start_of_turn>model{assistant}",
             "rag_prompt_template": f"""{DEFAULT_RAG_PROMPT},"""
@@ -274,7 +282,7 @@ SUPPORTED_LLM_MODELS = {
         "gemma-2-9b-it": {
             "model_id": "google/gemma-2-9b-it",
             "remote_code": False,
-            "start_message": DEFAULT_SYSTEM_PROMPT + ", ",
+            "start_message": DEFAULT_SYSTEM_PROMPT,
             "history_template": "<start_of_turn>user{user}<end_of_turn><start_of_turn>model{assistant}<end_of_turn>",
             "current_message_template": "<start_of_turn>user{user}<end_of_turn><start_of_turn>model{assistant}",
             "rag_prompt_template": f"""{DEFAULT_RAG_PROMPT},"""
@@ -283,7 +291,7 @@ SUPPORTED_LLM_MODELS = {
         "llama-2-chat-7b": {
             "model_id": "meta-llama/Llama-2-7b-chat-hf",
             "remote_code": False,
-            "start_message": f"<s>[INST] <<SYS>>\n{DEFAULT_SYSTEM_PROMPT }\n<</SYS>>\n\n",
+            "start_message": DEFAULT_SYSTEM_PROMPT,
             "history_template": "{user}[/INST]{assistant}</s><s>[INST]",
             "current_message_template": "{user} [/INST]{assistant}",
             "tokenizer_kwargs": {"add_special_tokens": False},
@@ -300,7 +308,6 @@ SUPPORTED_LLM_MODELS = {
             "start_message": DEFAULT_SYSTEM_PROMPT,
             "stop_tokens": ["<|eot_id|>", "<|end_of_text|>"],
             "has_chat_template": True,
-            "start_message": " <|start_header_id|>system<|end_header_id|>\n\n" + DEFAULT_SYSTEM_PROMPT + "<|eot_id|>",
             "history_template": "<|start_header_id|>user<|end_header_id|>\n\n{user}<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n{assistant}<|eot_id|>",
             "current_message_template": "<|start_header_id|>user<|end_header_id|>\n\n{user}<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n{assistant}",
             "rag_prompt_template": f"<|start_header_id|>system<|end_header_id|>\n\n{DEFAULT_RAG_PROMPT}<|eot_id|>"
@@ -321,7 +328,6 @@ SUPPORTED_LLM_MODELS = {
             "start_message": DEFAULT_SYSTEM_PROMPT,
             "stop_tokens": ["<|eot_id|>", "<|end_of_text|>"],
             "has_chat_template": True,
-            "start_message": " <|start_header_id|>system<|end_header_id|>\n\n" + DEFAULT_SYSTEM_PROMPT + "<|eot_id|>",
             "history_template": "<|start_header_id|>user<|end_header_id|>\n\n{user}<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n{assistant}<|eot_id|>",
             "current_message_template": "<|start_header_id|>user<|end_header_id|>\n\n{user}<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n{assistant}",
             "rag_prompt_template": f"<|start_header_id|>system<|end_header_id|>\n\n{DEFAULT_RAG_PROMPT}<|eot_id|>"
@@ -339,7 +345,7 @@ SUPPORTED_LLM_MODELS = {
         "mistral-7b-instruct": {
             "model_id": "mistralai/Mistral-7B-Instruct-v0.1",
             "remote_code": False,
-            "start_message": f"<s>[INST] <<SYS>>\n{DEFAULT_SYSTEM_PROMPT }\n<</SYS>>\n\n",
+            "start_message": DEFAULT_SYSTEM_PROMPT,
             "history_template": "{user}[/INST]{assistant}</s><s>[INST]",
             "current_message_template": "{user} [/INST]{assistant}",
             "tokenizer_kwargs": {"add_special_tokens": False},
@@ -353,7 +359,7 @@ SUPPORTED_LLM_MODELS = {
         "mistral-7B-Instruct-v0.3": {
             "model_id": "mistralai/Mistral-7B-Instruct-v0.3",
             "remote_code": False,
-            "start_message": f"<s>[INST] {DEFAULT_SYSTEM_PROMPT }\n\n",
+            "start_message": DEFAULT_SYSTEM_PROMPT,
             "history_template": "{user}[/INST]{assistant}</s>[INST]",
             "current_message_template": "{user} [/INST]{assistant}</s>",
             "tokenizer_kwargs": {"add_special_tokens": False},
@@ -363,7 +369,7 @@ SUPPORTED_LLM_MODELS = {
         "zephyr-7b-beta": {
             "model_id": "HuggingFaceH4/zephyr-7b-beta",
             "remote_code": False,
-            "start_message": f"<|system|>\n{DEFAULT_SYSTEM_PROMPT}</s>\n",
+            "start_message": DEFAULT_SYSTEM_PROMPT,
             "history_template": "<|user|>\n{user}</s> \n<|assistant|>\n{assistant}</s> \n",
             "current_message_template": "<|user|>\n{user}</s> \n<|assistant|>\n{assistant}",
             "rag_prompt_template": f"""<|system|> {DEFAULT_RAG_PROMPT }</s>"""
@@ -377,7 +383,7 @@ SUPPORTED_LLM_MODELS = {
         "notus-7b-v1": {
             "model_id": "argilla/notus-7b-v1",
             "remote_code": False,
-            "start_message": f"<|system|>\n{DEFAULT_SYSTEM_PROMPT}</s>\n",
+            "start_message": DEFAULT_SYSTEM_PROMPT,
             "history_template": "<|user|>\n{user}</s> \n<|assistant|>\n{assistant}</s> \n",
             "current_message_template": "<|user|>\n{user}</s> \n<|assistant|>\n{assistant}",
             "rag_prompt_template": f"""<|system|> {DEFAULT_RAG_PROMPT }</s>"""
@@ -391,7 +397,7 @@ SUPPORTED_LLM_MODELS = {
         "neural-chat-7b-v3-3": {
             "model_id": "Intel/neural-chat-7b-v3-3",
             "remote_code": False,
-            "start_message": f"<s>[INST] <<SYS>>\n{DEFAULT_SYSTEM_PROMPT }\n<</SYS>>\n\n",
+            "start_message": DEFAULT_SYSTEM_PROMPT,
             "history_template": "{user}[/INST]{assistant}</s><s>[INST]",
             "current_message_template": "{user} [/INST]{assistant}",
             "tokenizer_kwargs": {"add_special_tokens": False},
@@ -405,7 +411,7 @@ SUPPORTED_LLM_MODELS = {
         "phi-3-mini-instruct": {
             "model_id": "microsoft/Phi-3-mini-4k-instruct",
             "remote_code": True,
-            "start_message": "<|system|>\n{DEFAULT_SYSTEM_PROMPT}<|end|>\n",
+            "start_message": DEFAULT_SYSTEM_PROMPT,
             "history_template": "<|user|>\n{user}<|end|> \n<|assistant|>\n{assistant}<|end|>\n",
             "current_message_template": "<|user|>\n{user}<|end|> \n<|assistant|>\n{assistant}",
             "stop_tokens": ["<|end|>"],
@@ -421,7 +427,7 @@ SUPPORTED_LLM_MODELS = {
         "phi-3.5-mini-instruct": {
             "model_id": "microsoft/Phi-3.5-mini-instruct",
             "remote_code": True,
-            "start_message": "<|system|>\n{DEFAULT_SYSTEM_PROMPT}<|end|>\n",
+            "start_message": DEFAULT_SYSTEM_PROMPT,
             "history_template": "<|user|>\n{user}<|end|> \n<|assistant|>\n{assistant}<|end|>\n",
             "current_message_template": "<|user|>\n{user}<|end|> \n<|assistant|>\n{assistant}",
             "stop_tokens": ["<|end|>"],
@@ -436,10 +442,12 @@ SUPPORTED_LLM_MODELS = {
         },
         "phi-4-mini-instruct": {"model_id": "microsoft/phi-4-mini-instruct", "remote_code": True, "start_message": DEFAULT_SYSTEM_PROMPT},
         "phi-4": {"model_id": "microsoft/phi-4", "remote_code": False, "start_message": DEFAULT_SYSTEM_PROMPT},
+        "phi-4-mini-reasoning": {"model_id": "microsoft/Phi-4-mini-reasoning", "remote_code": True, "start_message": DEFAULT_SYSTEM_PROMPT},
+        "phi-4-reasoning": {"model_id": "microsoft/Phi-4-reasoning", "remote_code": False, "start_message": DEFAULT_SYSTEM_PROMPT},
         "qwen2.5-14b-instruct": {
             "model_id": "Qwen/Qwen2.5-14B-Instruct",
             "remote_code": False,
-            "start_message": DEFAULT_SYSTEM_PROMPT + ", ",
+            "start_message": DEFAULT_SYSTEM_PROMPT,
             "rag_prompt_template": f"""<|im_start|>system
             {DEFAULT_RAG_PROMPT }<|im_end|>"""
             + """
@@ -453,10 +461,12 @@ SUPPORTED_LLM_MODELS = {
         },
     },
     "Chinese": {
+        "minicpm4-8b": {"model_id": "openbmb/MiniCPM4-8B", "remote_code": True, "start_message": DEFAULT_SYSTEM_PROMPT_CHINESE},
+        "minicpm4-0.5b": {"model_id": "openbmb/MiniCPM4-0.5B", "remote_code": True, "start_message": DEFAULT_SYSTEM_PROMPT_CHINESE},
         "Qwen3-4B": {
             "model_id": "Qwen/Qwen3-4B",
             "remote_code": False,
-            "start_message": DEFAULT_SYSTEM_PROMPT,
+            "start_message": DEFAULT_SYSTEM_PROMPT_CHINESE,
             "stop_tokens": ["<|im_end|>", "<|endoftext|>"],
             "completion_to_prompt": qwen_completion_to_prompt,
             "genai_chat_template": "{% for message in messages %}{% if loop.first and messages[0]['role'] != 'system' %}{{ '<|im_start|>system\nYou are a helpful assistant.<|im_end|>\n' }}{% endif %}{{'<|im_start|>' + message['role'] + '\n' + message['content'] + '<|im_end|>' + '\n'}}{% endfor %}{% if add_generation_prompt %}{{ '<|im_start|>assistant\n' }}{% endif %}",
@@ -464,7 +474,7 @@ SUPPORTED_LLM_MODELS = {
         "Qwen3-1.7B": {
             "model_id": "Qwen/Qwen3-1.7B",
             "remote_code": False,
-            "start_message": DEFAULT_SYSTEM_PROMPT,
+            "start_message": DEFAULT_SYSTEM_PROMPT_CHINESE,
             "stop_tokens": ["<|im_end|>", "<|endoftext|>"],
             "completion_to_prompt": qwen_completion_to_prompt,
             "genai_chat_template": "{% for message in messages %}{% if loop.first and messages[0]['role'] != 'system' %}{{ '<|im_start|>system\nYou are a helpful assistant.<|im_end|>\n' }}{% endif %}{{'<|im_start|>' + message['role'] + '\n' + message['content'] + '<|im_end|>' + '\n'}}{% endfor %}{% if add_generation_prompt %}{{ '<|im_start|>assistant\n' }}{% endif %}",
@@ -472,7 +482,7 @@ SUPPORTED_LLM_MODELS = {
         "Qwen3-8B": {
             "model_id": "Qwen/Qwen3-8B",
             "remote_code": False,
-            "start_message": DEFAULT_SYSTEM_PROMPT,
+            "start_message": DEFAULT_SYSTEM_PROMPT_CHINESE,
             "stop_tokens": ["<|im_end|>", "<|endoftext|>"],
             "completion_to_prompt": qwen_completion_to_prompt,
             "genai_chat_template": "{% for message in messages %}{% if loop.first and messages[0]['role'] != 'system' %}{{ '<|im_start|>system\nYou are a helpful assistant.<|im_end|>\n' }}{% endif %}{{'<|im_start|>' + message['role'] + '\n' + message['content'] + '<|im_end|>' + '\n'}}{% endfor %}{% if add_generation_prompt %}{{ '<|im_start|>assistant\n' }}{% endif %}",
@@ -480,7 +490,7 @@ SUPPORTED_LLM_MODELS = {
         "Qwen3-14B": {
             "model_id": "Qwen/Qwen3-14B",
             "remote_code": False,
-            "start_message": DEFAULT_SYSTEM_PROMPT,
+            "start_message": DEFAULT_SYSTEM_PROMPT_CHINESE,
             "stop_tokens": ["<|im_end|>", "<|endoftext|>"],
             "completion_to_prompt": qwen_completion_to_prompt,
             "genai_chat_template": "{% for message in messages %}{% if loop.first and messages[0]['role'] != 'system' %}{{ '<|im_start|>system\nYou are a helpful assistant.<|im_end|>\n' }}{% endif %}{{'<|im_start|>' + message['role'] + '\n' + message['content'] + '<|im_end|>' + '\n'}}{% endfor %}{% if add_generation_prompt %}{{ '<|im_start|>assistant\n' }}{% endif %}",
@@ -488,12 +498,12 @@ SUPPORTED_LLM_MODELS = {
         "GLM-4-9B-0414": {
             "model_id": "THUDM/GLM-4-9B-0414",
             "remote_code": False,
-            "start_message": DEFAULT_SYSTEM_PROMPT,
+            "start_message": DEFAULT_SYSTEM_PROMPT_CHINESE,
         },
         "GLM-Z1-9B-0414": {
             "model_id": "THUDM/GLM-Z1-9B-0414",
             "remote_code": False,
-            "start_message": DEFAULT_SYSTEM_PROMPT,
+            "start_message": DEFAULT_SYSTEM_PROMPT_CHINESE,
             "genai_chat_template": "[gMASK]<sop>{%- if tools -%}<|system|>\n# 可用工具\n{% for tool in tools %}{%- set function = tool.function if tool.get(\"function\") else tool %}\n\n## {{ function.name }}\n\n{{ function | tojson(indent=4, ensure_ascii=False) }}\n在调用上述函数时，请使用 Json 格式表示调用的参数。{%- endfor %}{%- endif -%}{%- for msg in messages %}{%- if msg.role == 'system' %}<|system|>\n{{ msg.content }}{%- endif %}{%- endfor %}{%- for message in messages if message.role != 'system' %}{%- set role = message['role'] %}{%- set content = message['content'] %}{%- set meta = message.get(\"metadata\", \"\") %}{%- if role == 'user' %}<|user|>\n{{ content }}{%- elif role == 'assistant' and not meta %}<|assistant|>\n{{ content }}{%- elif role == 'assistant' and meta %}<|assistant|>{{ meta }} \n{{ content }}{%- elif role == 'observation' %}<|observation|>\n{{ content }}{%- endif %}{%- endfor %}{% if add_generation_prompt %}<|assistant|>{% endif %}",
         },
         "qwen2.5-0.5b-instruct": {
@@ -552,7 +562,7 @@ SUPPORTED_LLM_MODELS = {
         "qwen-7b-chat": {
             "model_id": "Qwen/Qwen-7B-Chat",
             "remote_code": True,
-            "start_message": f"<|im_start|>system\n {DEFAULT_SYSTEM_PROMPT_CHINESE }<|im_end|>",
+            "start_message": DEFAULT_SYSTEM_PROMPT_CHINESE,
             "history_template": "<|im_start|>user\n{user}<im_end><|im_start|>assistant\n{assistant}<|im_end|>",
             "current_message_template": '"<|im_start|>user\n{user}<im_end><|im_start|>assistant\n{assistant}',
             "stop_tokens": ["<|im_end|>", "<|endoftext|>"],
@@ -756,8 +766,6 @@ compression_configs = {
     "llama-3.2-1b-instruct": {"sym": False, "group_size": 64, "ratio": 1.0, "dataset": "wikitext2", "awq": True, "all_layers": True, "scale_estimation": True},
     "default": {
         "sym": False,
-        "group_size": 128,
-        "ratio": 0.8,
     },
 }
 
@@ -766,13 +774,22 @@ def get_optimum_cli_command(model_id, weight_format, output_dir, compression_opt
     base_command = "optimum-cli export openvino --model {} --task text-generation-with-past --weight-format {}"
     command = base_command.format(model_id, weight_format)
     if compression_options:
-        compression_args = " --group-size {} --ratio {}".format(compression_options["group_size"], compression_options["ratio"])
+        compression_args = ""
+        if "group_size" in compression_options:
+            compression_args += " --group-size {}".format(compression_options["group_size"])
+        if "ratio" in compression_options:
+            compression_args += " --ratio {}".format(compression_options["ratio"])
         if compression_options["sym"]:
             compression_args += " --sym"
         if enable_awq or compression_options.get("awq", False):
             compression_args += " --awq --dataset wikitext2 --num-samples 128"
             if compression_options.get("scale_estimation", False):
                 compression_args += " --scale-estimation"
+        else:
+            if compression_options.get("scale_estimation", False):
+                compression_args += " --scale-estimation"
+            if "dataset" in compression_options:
+                compression_args += f" --dataset {compression_options['dataset']}"
         if compression_options.get("all_layers", False):
             compression_args += " --all-layers"
 
